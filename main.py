@@ -1,24 +1,17 @@
 import streamlit as st
-from transformers import AutoProcessor, LlavaForConditionalGeneration, BitsAndBytesConfig
+from transformers import AutoProcessor, LlavaForConditionalGeneration
 import torch
 from PIL import Image
-import requests
-import tempfile
 
-# Set up the LLaVA model
-quantization_config = BitsAndBytesConfig(
-    load_in_4bit=True,
-    bnb_4bit_compute_dtype=torch.float16
-)
-
+# Set up the LLaVA model for CPU
 model_id = "llava-hf/llava-1.5-7b-hf"
 
-# Load model and processor
+# Load model and processor for CPU
 processor = AutoProcessor.from_pretrained(model_id)
-model = LlavaForConditionalGeneration.from_pretrained(model_id, quantization_config=quantization_config, device_map="auto")
+model = LlavaForConditionalGeneration.from_pretrained(model_id, device_map="cpu")
 
 # Streamlit app UI
-st.title("LLaVA: Image Captioning App")
+st.title("LLaVA: Image Captioning App (CPU Version)")
 
 # Upload image
 uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
@@ -34,8 +27,8 @@ if uploaded_file is not None:
     # Button to generate caption
     if st.button('Generate Caption'):
         with st.spinner('Generating caption...'):
-            # Prepare image and prompt
-            inputs = processor(prompt, images=[img], padding=True, return_tensors="pt").to("cuda")
+            # Prepare image and prompt for CPU
+            inputs = processor(prompt, images=[img], padding=True, return_tensors="pt").to("cpu")
             output = model.generate(**inputs, max_new_tokens=50)
             generated_text = processor.batch_decode(output, skip_special_tokens=True)
             for text in generated_text:
