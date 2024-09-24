@@ -1,4 +1,3 @@
-!git clone https://github.com/huggingface/transformers.git
 import streamlit as st
 from transformers import AutoProcessor, LlavaForConditionalGeneration, BitsAndBytesConfig
 import torch
